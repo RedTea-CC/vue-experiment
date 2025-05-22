@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { defineModel, defineProps, defineEmits } from 'vue'
 
+defineOptions({ name: 'SonComponent' })
+
 // defineModel - 接收父组件v-model值
 const modelValue = defineModel<string | number>()
 
@@ -14,8 +16,8 @@ const emit = defineEmits<{
   (e: 'child-change', value: string | number): void
 }>()
 
-const handleEmit = (event) => {
-  emit('child-change', event.target.value)
+const handleEmit = (event: Event) => {
+  emit('child-change', (event.target as HTMLInputElement).value)
 }
 </script>
 
@@ -26,7 +28,7 @@ const handleEmit = (event) => {
     <h4>prop:{{ label }}</h4>
     <input
       :value="label"
-      @change="$emit('child-change', $event.target.value)"
+      @change="$emit('child-change', ($event.target as HTMLInputElement).value)"
       placeholder="子组件输入框"
     />
     <input :value="label" @change="handleEmit" placeholder="子组件输入框" />

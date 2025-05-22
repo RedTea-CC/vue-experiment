@@ -8,7 +8,7 @@ const childProps = ref('父组件传递的标签')
 
 const handleChildChange = (value: string | number) => {
   console.log('子组件传递的值', value)
-  childProps.value = value
+  childProps.value = value as string
 }
 
 // defineModel - 双向绑定基础值
