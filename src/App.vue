@@ -1,6 +1,25 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+
+const tabs = [
+  {
+    label: 'Home',
+    path: '/',
+  },
+  {
+    label: 'About',
+    path: '/about',
+  },
+  {
+    label: 'Experiment',
+    path: '/experiment',
+  },
+  {
+    label: 'Weather',
+    path: '/weather',
+  },
+]
 </script>
 
 <template>
@@ -11,9 +30,9 @@ import HelloWorld from './components/HelloWorld.vue'
       <HelloWorld msg="You did it!" />
 
       <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/experiment">Experiment</RouterLink>
+        <RouterLink v-for="item in tabs" :to="item.path" :key="item.path">{{
+          item.label
+        }}</RouterLink>
       </nav>
     </div>
   </header>
