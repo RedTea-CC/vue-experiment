@@ -90,8 +90,8 @@ async function getAIAnalysisManually() {
   try {
     aiAnalysisState.loading = true
     aiAnalysisState.error = null
-    const aiResponse = await getAIAnalysis(weatherData.value)
-    const responseContent = aiResponse.choices[0].message.content
+    const { data } = await getAIAnalysis(weatherData.value)
+    const { responseContent } = data.choices[0].message.content
 
     weatherData.value.aiAnalysis = parseAIResponse(responseContent)
   } catch (error) {

@@ -19,8 +19,8 @@ export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string 
     forecast: forecast.slice(0, 3).map((day) => ({
       date: day.date,
       week: day.week,
-      dayWeather: day.dayweather,
-      nightWeather: day.nightweather,
+      dayweather: day.dayweather,
+      nightweather: day.nightweather,
       tempRange: `${day.nighttemp}°C ~ ${day.daytemp}°C`,
       wind: `白天${day.daywind}，夜间${day.nightwind}`,
     })),
@@ -39,7 +39,7 @@ export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string 
 
 **未来3天预报：**
 ${weatherInfo.forecast
-  .map((day) => `- ${day.date}（${day.week}）：${day.dayWeather}转${day.nightWeather}，${day.wind}`)
+  .map((day) => `- ${day.date}（${day.week}）：${day.dayweather}转${day.nightweather}，${day.wind}`)
   .join('\n')}
 
 ## 分析要求

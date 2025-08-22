@@ -4,7 +4,7 @@
       <span class="title-icon">🤖</span>
       AI智能建议
     </h3>
-    
+
     <div class="analysis-summary">
       <p class="summary-text">{{ aiAnalysis.summary }}</p>
     </div>
@@ -46,13 +46,7 @@
 </template>
 
 <script setup lang="ts">
-interface AIAnalysisData {
-  clothingAdvice: string
-  travelAdvice: string
-  activityRecommendation: string
-  healthTips: string
-  summary: string
-}
+import type { AIAnalysisData } from '@/types/weather'
 
 interface Props {
   aiAnalysis: AIAnalysisData
@@ -108,8 +102,12 @@ defineProps<Props>()
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
 }
 
 .summary-text {
@@ -196,19 +194,19 @@ defineProps<Props>()
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 15px;
   }
-  
+
   .analysis-item {
     padding: 15px;
   }
-  
+
   .card-title {
     font-size: 1.3rem;
   }
-  
+
   .analysis-summary {
     padding: 15px;
   }
-  
+
   .summary-text {
     font-size: 1rem;
   }
@@ -218,17 +216,17 @@ defineProps<Props>()
   .analysis-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .ai-analysis-card {
     padding: 20px;
   }
-  
+
   .analysis-header {
     flex-direction: column;
     text-align: center;
     gap: 8px;
   }
-  
+
   .analysis-icon {
     margin: 0 auto;
   }
@@ -240,20 +238,20 @@ defineProps<Props>()
     background: rgba(45, 52, 54, 0.95);
     color: #ddd;
   }
-  
+
   .card-title {
     color: #ddd;
   }
-  
+
   .analysis-item {
     background: rgba(116, 185, 255, 0.1);
     border-color: rgba(116, 185, 255, 0.3);
   }
-  
+
   .analysis-title {
     color: #ddd;
   }
-  
+
   .analysis-content {
     color: #b2bec3;
   }
