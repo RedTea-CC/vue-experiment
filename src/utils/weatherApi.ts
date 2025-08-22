@@ -13,8 +13,8 @@ const AMAP_BASE_URL = 'https://restapi.amap.com/v3/weather'
 const AMAP_KEY = import.meta.env.VITE_AMAP_KEY
 
 // AI服务配置
-const AI_BASE_URL = 'https://api.siliconflow.cn/v1/chat/completions'
-const AI_API_KEY = 'sk-tjubpksskzjkyxflrrutglttbabplxqfyflmykxkoshizqqk'
+const AI_BASE_URL = import.meta.env.VITE_AI_BASE_URL
+const AI_API_KEY = import.meta.env.VITE_AI_API_KEY
 
 // 创建axios实例
 const amapApi = axios.create({
@@ -97,19 +97,19 @@ export async function getCompleteWeatherData(city: string): Promise<WeatherData>
         weather: currentWeather.weather,
         temperature: parseFloat(currentWeather.temperature_float || currentWeather.temperature),
         humidity: parseFloat(currentWeather.humidity_float || currentWeather.humidity),
-        windDirection: currentWeather.winddirection,
-        windPower: currentWeather.windpower,
-        reportTime: currentWeather.reporttime,
+        winddirection: currentWeather.winddirection,
+        windpower: currentWeather.windpower,
+        reporttime: currentWeather.reporttime,
       },
       forecast: forecastWeather.casts.map((cast) => ({
         date: cast.date,
         week: cast.week,
-        dayWeather: cast.dayweather,
-        nightWeather: cast.nightweather,
-        dayTemp: parseFloat(cast.daytemp_float || cast.daytemp),
-        nightTemp: parseFloat(cast.nighttemp_float || cast.nighttemp),
-        dayWind: cast.daywind,
-        nightWind: cast.nightwind,
+        dayweather: cast.dayweather,
+        nightweather: cast.nightweather,
+        daytemp: parseFloat(cast.daytemp_float || cast.daytemp),
+        nighttemp: parseFloat(cast.nighttemp_float || cast.nighttemp),
+        daywind: cast.daywind,
+        nightwind: cast.nightwind,
       })),
     }
 
@@ -135,32 +135,31 @@ export async function getAIAnalysis({
         adcode: '',
         weather: current.weather,
         temperature: current.temperature.toString(),
-        winddirection: current.windDirection,
-        windpower: current.windPower,
+        winddirection: current.winddirection,
+        windpower: current.windpower,
         humidity: current.humidity.toString(),
-        reporttime: current.reportTime,
+        reporttime: current.reporttime,
         temperature_float: current.temperature.toString(),
         humidity_float: current.humidity.toString(),
       },
       forecast: forecast.map((item) => ({
         date: item.date,
         week: item.week,
-        dayweather: item.dayWeather,
-        nightweather: item.nightWeather,
-        daytemp: item.dayTemp.toString(),
-        nighttemp: item.nightTemp.toString(),
-        daywind: item.dayWind,
-        nightwind: item.nightWind,
+        dayweather: item.dayweather,
+        nightweather: item.nightweather,
+        daytemp: item.daytemp.toString(),
+        nighttemp: item.nighttemp.toString(),
+        daywind: item.daywind,
+        nightwind: item.nightwind,
         daypower: '',
         nightpower: '',
-        daytemp_float: item.dayTemp.toString(),
-        nighttemp_float: item.nightTemp.toString(),
+        daytemp_float: item.daytemp.toString(),
+        nighttemp_float: item.nighttemp.toString(),
       })),
     })
 
     const requestData = {
-      // model: 'gpt-5',
-      model: 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B',
+      model: import.meta.env.VITE_AI_MODEL,
       messages: [
         {
           role: 'user',
@@ -170,9 +169,8 @@ export async function getAIAnalysis({
     }
 
     const response = await aiApi.post('', requestData)
-    console.log('response', response)
 
-    return response.data
+    return response
   } catch (error) {
     console.error('AI分析服务调用失败:', error)
     // 返回默认分析结果
