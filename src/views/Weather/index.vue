@@ -20,6 +20,7 @@ const apiState = reactive<ApiState>({
   loading: false,
   error: null,
   lastUpdate: null,
+  resModel: '',
 })
 
 const aiAnalysisState = reactive({
@@ -90,10 +91,11 @@ async function getAIAnalysisManually() {
   try {
     aiAnalysisState.loading = true
     aiAnalysisState.error = null
-    const { data } = await getAIAnalysis(weatherData.value)
-    const { responseContent } = data.choices[0].message.content
+    const res = await getAIAnalysis(weatherData.value)
+    const { content } = res.choices[0].message
+    apiState.resModel = res.model
 
-    weatherData.value.aiAnalysis = parseAIResponse(responseContent)
+    weatherData.value.aiAnalysis = parseAIResponse(content)
   } catch (error) {
     console.error('AI分析获取失败:', error)
     aiAnalysisState.error = error instanceof Error ? error.message : 'AI分析失败'
@@ -228,7 +230,7 @@ onMounted(() => {
       <div class="data-source">
         <p class="source-text">
           <span class="source-icon">ℹ️</span>
-          数据来源：高德地图天气API | AI分析：智能助手
+          数据来源：高德地图天气API | AI分析：{{ apiState.resModel || '智能助手' }}
         </p>
         <p v-if="apiState.lastUpdate" class="last-update">
           最后更新：{{ formatUpdateTime(apiState.lastUpdate) }}

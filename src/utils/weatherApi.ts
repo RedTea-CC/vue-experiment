@@ -128,8 +128,6 @@ export async function getAIAnalysis({
   forecast,
 }: WeatherData): Promise<AIAnalysisResponse> {
   try {
-    const { current, forecast } = weatherData
-
     const prompt = generateWeatherAnalysisPrompt({
       current: {
         province: '',
