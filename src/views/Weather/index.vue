@@ -75,8 +75,6 @@ function refreshWeather() {
  * 切换城市
  */
 function changeCity(city: CityInfo) {
-  if (city.adcode === currentCity.value.adcode) return
-
   currentCity.value = city
   weatherData.value = null
   fetchWeatherData()
@@ -127,8 +125,6 @@ function formatUpdateTime(timeStr: string): string {
 
 // 组件挂载时获取数据
 onMounted(() => {
-  console.log('onMounted')
-
   fetchWeatherData()
 })
 </script>
