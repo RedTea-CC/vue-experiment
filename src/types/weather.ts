@@ -59,10 +59,35 @@ export interface AIAnalysisRequest {
 
 export interface AIAnalysisResponse {
   success?: boolean
-  data: {
-    choices: [{ message: { content: { responseContent: string } } }]
-  }
   error?: string
+  id: string
+  choices: [
+    {
+      message: {
+        role: string
+        content: string
+        reasoning_content: string
+        tool_calls: [
+          {
+            id: string
+            type: any
+            function: {
+              name: string
+              arguments: string
+            }
+          },
+        ]
+      }
+      finish_reason: string
+    },
+  ]
+  usage: {
+    prompt_tokens: 123
+    completion_tokens: 123
+    total_tokens: 123
+  }
+  created: 123
+  model: string
 }
 
 export interface AIAnalysisData {
@@ -100,4 +125,5 @@ export interface ApiState {
   loading: boolean
   error: string | null
   lastUpdate: string | null
+  resModel: string
 }
