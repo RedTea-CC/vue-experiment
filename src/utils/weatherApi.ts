@@ -169,8 +169,7 @@ export async function getAIAnalysis({
     }
 
     const response = await aiApi.post('', requestData)
-
-    return response
+    return response.data
   } catch (error) {
     console.error('AI分析服务调用失败:', error)
     // 返回默认分析结果
