@@ -13,8 +13,8 @@ const AMAP_BASE_URL = 'https://restapi.amap.com/v3/weather'
 const AMAP_KEY = import.meta.env.VITE_AMAP_KEY
 
 // AI服务配置
-const AI_BASE_URL = import.meta.env.VITE_AI_BASE_URL
-const AI_API_KEY = import.meta.env.VITE_AI_API_KEY
+const AI_BASE_URL = 'https://api.siliconflow.cn/v1/chat/completions'
+const AI_API_KEY = 'sk-tjubpksskzjkyxflrrutglttbabplxqfyflmykxkoshizqqk'
 
 // 创建axios实例
 const amapApi = axios.create({
@@ -24,7 +24,6 @@ const amapApi = axios.create({
 
 const aiApi = axios.create({
   baseURL: AI_BASE_URL,
-  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${AI_API_KEY}`,
@@ -124,23 +123,26 @@ export async function getCompleteWeatherData(city: string): Promise<WeatherData>
 /**
  * 调用AI分析服务
  */
-export async function getAIAnalysis(weatherData: WeatherData): Promise<AIAnalysisResponse> {
+export async function getAIAnalysis({
+  current,
+  forecast,
+}: WeatherData): Promise<AIAnalysisResponse> {
   try {
     const prompt = generateWeatherAnalysisPrompt({
       current: {
         province: '',
-        city: weatherData.current.city,
+        city: current.city,
         adcode: '',
-        weather: weatherData.current.weather,
-        temperature: weatherData.current.temperature.toString(),
-        winddirection: weatherData.current.windDirection,
-        windpower: weatherData.current.windPower,
-        humidity: weatherData.current.humidity.toString(),
-        reporttime: weatherData.current.reportTime,
-        temperature_float: weatherData.current.temperature.toString(),
-        humidity_float: weatherData.current.humidity.toString(),
+        weather: current.weather,
+        temperature: current.temperature.toString(),
+        winddirection: current.windDirection,
+        windpower: current.windPower,
+        humidity: current.humidity.toString(),
+        reporttime: current.reportTime,
+        temperature_float: current.temperature.toString(),
+        humidity_float: current.humidity.toString(),
       },
-      forecast: weatherData.forecast.map((item) => ({
+      forecast: forecast.map((item) => ({
         date: item.date,
         week: item.week,
         dayweather: item.dayWeather,
@@ -157,7 +159,8 @@ export async function getAIAnalysis(weatherData: WeatherData): Promise<AIAnalysi
     })
 
     const requestData = {
-      model: 'gpt-5',
+      // model: 'gpt-5',
+      model: 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B',
       messages: [
         {
           role: 'user',
@@ -167,6 +170,8 @@ export async function getAIAnalysis(weatherData: WeatherData): Promise<AIAnalysi
     }
 
     const response = await aiApi.post('', requestData)
+    console.log('response', response)
+
     return response.data
   } catch (error) {
     console.error('AI分析服务调用失败:', error)

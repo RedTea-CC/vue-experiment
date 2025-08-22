@@ -1,11 +1,11 @@
-import type { WeatherData } from '@/types/weather'
+import type { AIAnalysisData, WeatherData } from '@/types/weather'
 
 /**
  * 生成AI分析的优化提示词
  */
 export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string {
   const { current, forecast } = weatherData
-  
+
   // 构建结构化的天气信息
   const weatherInfo = {
     current: {
@@ -13,17 +13,17 @@ export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string 
       weather: current.weather,
       temperature: current.temperature,
       humidity: current.humidity,
-      wind: `${current.windDirection}风 ${current.windPower}级`,
-      updateTime: current.reportTime
+      windpower: `${current.winddirection}风 ${current.windpower}级`,
+      reporttime: current.reporttime,
     },
-    forecast: forecast.slice(0, 3).map(day => ({
+    forecast: forecast.slice(0, 3).map((day) => ({
       date: day.date,
       week: day.week,
-      dayWeather: day.dayWeather,
-      nightWeather: day.nightWeather,
-      tempRange: `${day.nightTemp}°C ~ ${day.dayTemp}°C`,
-      wind: `白天${day.dayWind}，夜间${day.nightWind}`
-    }))
+      dayWeather: day.dayweather,
+      nightWeather: day.nightweather,
+      tempRange: `${day.nighttemp}°C ~ ${day.daytemp}°C`,
+      wind: `白天${day.daywind}，夜间${day.nightwind}`,
+    })),
   }
 
   const prompt = `
@@ -34,13 +34,13 @@ export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string 
 - 天气状况：${weatherInfo.current.weather}
 - 温度：${weatherInfo.current.temperature}°C
 - 湿度：${weatherInfo.current.humidity}%
-- 风力：${weatherInfo.current.wind}
-- 更新时间：${weatherInfo.current.updateTime}
+- 风力：${weatherInfo.current.windpower}
+- 更新时间：${weatherInfo.current.reporttime}
 
 **未来3天预报：**
-${weatherInfo.forecast.map(day => 
-  `- ${day.date}（${day.week}）：${day.dayWeather}转${day.nightWeather}，${day.tempRange}，${day.wind}`
-).join('\n')}
+${weatherInfo.forecast
+  .map((day) => `- ${day.date}（${day.week}）：${day.dayWeather}转${day.nightWeather}，${day.wind}`)
+  .join('\n')}
 
 ## 分析要求
 请从以下4个维度提供专业建议，每个维度控制在50-80字：
@@ -54,7 +54,7 @@ ${weatherInfo.forecast.map(day =>
 请严格按照以下JSON格式回复：
 {
   "clothingAdvice": "穿衣建议内容",
-  "travelAdvice": "出行建议内容", 
+  "travelAdvice": "出行建议内容",
   "activityRecommendation": "活动推荐内容",
   "healthTips": "健康提示内容",
   "summary": "综合天气分析总结（100字以内）"
@@ -73,47 +73,47 @@ ${weatherInfo.forecast.map(day =>
 /**
  * 解析AI响应文本，提取JSON数据
  */
-export function parseAIResponse(responseText: string): any {
+export function parseAIResponse(responseText: string): AIAnalysisData {
   try {
     // 尝试直接解析JSON
     return JSON.parse(responseText)
   } catch {
     // 如果直接解析失败，尝试提取JSON部分
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      try {
-        return JSON.parse(jsonMatch[0])
-      } catch {
-        // 如果仍然失败，返回默认结构
-        return parseTextResponse(responseText)
-      }
+    const start = responseText.indexOf('{')
+    const end = responseText.lastIndexOf('}')
+    try {
+      const jsonStr = responseText.slice(start, end + 1)
+      return JSON.parse(jsonStr)
+    } catch (err) {
+      console.error('解析 JSON 出错:', err)
+      // 如果仍然失败，返回默认结构
+      return parseTextResponse(responseText)
     }
-    return parseTextResponse(responseText)
   }
 }
 
 /**
  * 从纯文本响应中提取建议内容
  */
-function parseTextResponse(text: string): any {
+function parseTextResponse(text: string): AIAnalysisData {
   const defaultResponse = {
     clothingAdvice: '建议根据当前温度选择合适的服装，注意保暖或防晒。',
     travelAdvice: '出行前请关注天气变化，合理安排出行时间。',
     activityRecommendation: '可根据天气情况选择适合的室内外活动。',
     healthTips: '请注意天气变化对健康的影响，做好相应防护。',
-    summary: '请关注天气变化，合理安排生活和出行。'
+    summary: '请关注天气变化，合理安排生活和出行。',
   }
 
   // 尝试从文本中提取关键信息
-  const sections = text.split(/[。！？\n]/).filter(s => s.trim())
-  
+  const sections = text.split(/[。！？\n]/).filter((s) => s.trim())
+
   if (sections.length >= 4) {
     return {
       clothingAdvice: sections[0]?.trim() || defaultResponse.clothingAdvice,
       travelAdvice: sections[1]?.trim() || defaultResponse.travelAdvice,
       activityRecommendation: sections[2]?.trim() || defaultResponse.activityRecommendation,
       healthTips: sections[3]?.trim() || defaultResponse.healthTips,
-      summary: sections.slice(4).join('。') || defaultResponse.summary
+      summary: sections.slice(4).join('。') || defaultResponse.summary,
     }
   }
 
@@ -125,20 +125,20 @@ function parseTextResponse(text: string): any {
  */
 export function getWeatherIcon(weather: string): string {
   const iconMap: Record<string, string> = {
-    '晴': '☀️',
-    '多云': '⛅',
-    '阴': '☁️',
-    '小雨': '🌦️',
-    '中雨': '🌧️',
-    '大雨': '⛈️',
-    '暴雨': '🌩️',
-    '雷阵雨': '⛈️',
-    '小雪': '🌨️',
-    '中雪': '❄️',
-    '大雪': '🌨️',
-    '雾': '🌫️',
-    '霾': '😷',
-    '沙尘暴': '🌪️'
+    晴: '☀️',
+    多云: '⛅',
+    阴: '☁️',
+    小雨: '🌦️',
+    中雨: '🌧️',
+    大雨: '⛈️',
+    暴雨: '🌩️',
+    雷阵雨: '⛈️',
+    小雪: '🌨️',
+    中雪: '❄️',
+    大雪: '🌨️',
+    雾: '🌫️',
+    霾: '😷',
+    沙尘暴: '🌪️',
   }
 
   // 模糊匹配
