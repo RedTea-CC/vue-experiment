@@ -98,19 +98,19 @@ export async function getCompleteWeatherData(city: string): Promise<WeatherData>
         weather: currentWeather.weather,
         temperature: parseFloat(currentWeather.temperature_float || currentWeather.temperature),
         humidity: parseFloat(currentWeather.humidity_float || currentWeather.humidity),
-        windDirection: currentWeather.winddirection,
-        windPower: currentWeather.windpower,
-        reportTime: currentWeather.reporttime,
+        winddirection: currentWeather.winddirection,
+        windpower: currentWeather.windpower,
+        reporttime: currentWeather.reporttime,
       },
       forecast: forecastWeather.casts.map((cast) => ({
         date: cast.date,
         week: cast.week,
-        dayWeather: cast.dayweather,
-        nightWeather: cast.nightweather,
-        dayTemp: parseFloat(cast.daytemp_float || cast.daytemp),
-        nightTemp: parseFloat(cast.nighttemp_float || cast.nighttemp),
-        dayWind: cast.daywind,
-        nightWind: cast.nightwind,
+        dayweather: cast.dayweather,
+        nightweather: cast.nightweather,
+        daytemp: parseFloat(cast.daytemp_float || cast.daytemp),
+        nighttemp: parseFloat(cast.nighttemp_float || cast.nighttemp),
+        daywind: cast.daywind,
+        nightwind: cast.nightwind,
       })),
     }
 
@@ -126,38 +126,40 @@ export async function getCompleteWeatherData(city: string): Promise<WeatherData>
  */
 export async function getAIAnalysis(weatherData: WeatherData): Promise<AIAnalysisResponse> {
   try {
+    const { current, forecast } = weatherData
+
     const prompt = generateWeatherAnalysisPrompt({
       current: {
         province: '',
-        city: weatherData.current.city,
+        city: current.city,
         adcode: '',
-        weather: weatherData.current.weather,
-        temperature: weatherData.current.temperature.toString(),
-        winddirection: weatherData.current.windDirection,
-        windpower: weatherData.current.windPower,
-        humidity: weatherData.current.humidity.toString(),
-        reporttime: weatherData.current.reportTime,
-        temperature_float: weatherData.current.temperature.toString(),
-        humidity_float: weatherData.current.humidity.toString(),
+        weather: current.weather,
+        temperature: current.temperature.toString(),
+        winddirection: current.winddirection,
+        windpower: current.windpower,
+        humidity: current.humidity.toString(),
+        reporttime: current.reporttime,
+        temperature_float: current.temperature.toString(),
+        humidity_float: current.humidity.toString(),
       },
-      forecast: weatherData.forecast.map((item) => ({
+      forecast: forecast.map((item) => ({
         date: item.date,
         week: item.week,
-        dayweather: item.dayWeather,
-        nightweather: item.nightWeather,
-        daytemp: item.dayTemp.toString(),
-        nighttemp: item.nightTemp.toString(),
-        daywind: item.dayWind,
-        nightwind: item.nightWind,
+        dayweather: item.dayweather,
+        nightweather: item.nightweather,
+        daytemp: item.daytemp.toString(),
+        nighttemp: item.nighttemp.toString(),
+        daywind: item.daywind,
+        nightwind: item.nightwind,
         daypower: '',
         nightpower: '',
-        daytemp_float: item.dayTemp.toString(),
-        nighttemp_float: item.nightTemp.toString(),
+        daytemp_float: item.daytemp.toString(),
+        nighttemp_float: item.nighttemp.toString(),
       })),
     })
 
     const requestData = {
-      model: 'gpt-5',
+      model: import.meta.env.VITE_AI_MODEL,
       messages: [
         {
           role: 'user',
@@ -167,7 +169,8 @@ export async function getAIAnalysis(weatherData: WeatherData): Promise<AIAnalysi
     }
 
     const response = await aiApi.post('', requestData)
-    return response.data
+
+    return response
   } catch (error) {
     console.error('AI分析服务调用失败:', error)
     // 返回默认分析结果
