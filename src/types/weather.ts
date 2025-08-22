@@ -58,15 +58,19 @@ export interface AIAnalysisRequest {
 }
 
 export interface AIAnalysisResponse {
-  success: boolean
-  data?: {
-    clothingAdvice: string
-    travelAdvice: string
-    activityRecommendation: string
-    healthTips: string
-    summary: string
+  success?: boolean
+  data: {
+    choices: [{ message: { content: { responseContent: string } } }]
   }
   error?: string
+}
+
+export interface AIAnalysisData {
+  clothingAdvice: string
+  travelAdvice: string
+  activityRecommendation: string
+  healthTips: string
+  summary: string
 }
 
 // 应用内部使用的天气数据类型
@@ -76,27 +80,12 @@ export interface WeatherData {
     weather: string
     temperature: number
     humidity: number
-    windDirection: string
-    windPower: string
-    reportTime: string
+    winddirection: string
+    windpower: string
+    reporttime: string
   }
-  forecast: {
-    date: string
-    week: string
-    dayWeather: string
-    nightWeather: string
-    dayTemp: number
-    nightTemp: number
-    dayWind: string
-    nightWind: string
-  }[]
-  aiAnalysis?: {
-    clothingAdvice: string
-    travelAdvice: string
-    activityRecommendation: string
-    healthTips: string
-    summary: string
-  }
+  forecast: AmapWeatherCast[]
+  aiAnalysis?: AIAnalysisData
 }
 
 // 城市信息类型

@@ -6,25 +6,25 @@
         {{ weatherData.current.city }}
       </div>
       <div class="current-time">
-        更新时间：{{ formatUpdateTime(weatherData.current.reportTime) }}
-        <button 
-          @click="$emit('refresh')" 
+        更新时间：{{ formatUpdateTime(weatherData.current.reporttime) }}
+        <button
+          @click="$emit('refresh')"
           class="refresh-button"
-          :class="{ 'stale': isDataStale }"
+          :class="{ stale: isDataStale }"
           title="刷新数据"
         >
           🔄
         </button>
       </div>
     </div>
-    
+
     <div class="current-main">
       <div class="current-temp-section">
         <div class="weather-icon">{{ currentWeatherIcon }}</div>
         <div class="temperature">{{ formattedCurrentTemp }}</div>
         <div class="weather-desc">{{ weatherData.current.weather }}</div>
       </div>
-      
+
       <div class="current-details">
         <div class="detail-item">
           <span class="detail-label">湿度</span>
@@ -32,7 +32,9 @@
         </div>
         <div class="detail-item">
           <span class="detail-label">风力</span>
-          <span class="detail-value">{{ weatherData.current.windDirection }}风 {{ weatherData.current.windPower }}级</span>
+          <span class="detail-value"
+            >{{ weatherData.current.winddirection }}风 {{ weatherData.current.windpower }}级</span
+          >
         </div>
       </div>
     </div>
@@ -69,7 +71,7 @@ const isDataStale = computed(() => {
   if (!props.lastUpdate) return true
   const updateTime = new Date(props.lastUpdate)
   const now = new Date()
-  return (now.getTime() - updateTime.getTime()) > 10 * 60 * 1000 // 10分钟
+  return now.getTime() - updateTime.getTime() > 10 * 60 * 1000 // 10分钟
 })
 
 /**
@@ -81,7 +83,7 @@ function formatUpdateTime(timeStr: string): string {
     month: 'numeric',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 </script>
@@ -146,8 +148,13 @@ function formatUpdateTime(timeStr: string): string {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .current-main {
@@ -210,16 +217,16 @@ function formatUpdateTime(timeStr: string): string {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .current-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .temperature {
     font-size: 2.5rem;
   }
-  
+
   .weather-icon {
     font-size: 3rem;
   }

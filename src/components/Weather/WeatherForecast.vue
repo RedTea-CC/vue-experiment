@@ -5,30 +5,26 @@
       未来天气预报
     </h3>
     <div class="forecast-list">
-      <div 
-        v-for="day in forecastData" 
-        :key="day.date"
-        class="forecast-item"
-      >
+      <div v-for="day in forecastData" :key="day.date" class="forecast-item">
         <div class="forecast-date">
           {{ formatDate(day.date) }}
           <span class="forecast-week">{{ day.week }}</span>
         </div>
         <div class="forecast-weather">
-          <div class="forecast-icon">{{ getWeatherIcon(day.dayWeather) }}</div>
+          <div class="forecast-icon">{{ getWeatherIcon(day.dayweather) }}</div>
           <div class="forecast-desc">
-            <span class="day-weather">{{ day.dayWeather }}</span>
-            <span v-if="day.dayWeather !== day.nightWeather" class="night-weather">
-              转{{ day.nightWeather }}
+            <span class="day-weather">{{ day.dayweather }}</span>
+            <span v-if="day.dayweather !== day.nightweather" class="night-weather">
+              转{{ day.nightweather }}
             </span>
           </div>
         </div>
         <div class="forecast-temp">
-          <span class="temp-high">{{ formatTemperature(day.dayTemp) }}</span>
+          <span class="temp-high">{{ formatTemperature(day.daytemp) }}</span>
           <span class="temp-divider">/</span>
-          <span class="temp-low">{{ formatTemperature(day.nightTemp) }}</span>
+          <span class="temp-low">{{ formatTemperature(day.nighttemp) }}</span>
         </div>
-        <div class="forecast-wind">{{ day.dayWind }}</div>
+        <div class="forecast-wind">{{ day.daywind }}</div>
       </div>
     </div>
   </div>
@@ -45,7 +41,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  maxDays: 4
+  maxDays: 4,
 })
 
 // 计算属性 - 限制显示的天数
@@ -171,15 +167,15 @@ const forecastData = computed(() => {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
   }
-  
+
   .forecast-item {
     padding: 15px;
   }
-  
+
   .card-title {
     font-size: 1.3rem;
   }
-  
+
   .forecast-icon {
     font-size: 1.5rem;
   }
@@ -189,7 +185,7 @@ const forecastData = computed(() => {
   .forecast-list {
     grid-template-columns: 1fr;
   }
-  
+
   .forecast-item {
     display: grid;
     grid-template-columns: auto 1fr auto;
@@ -197,27 +193,27 @@ const forecastData = computed(() => {
     gap: 10px;
     align-items: center;
   }
-  
+
   .forecast-date {
     grid-column: 1;
     grid-row: 1;
     margin-bottom: 0;
   }
-  
+
   .forecast-weather {
     grid-column: 2;
     grid-row: 1;
     margin-bottom: 0;
     justify-self: center;
   }
-  
+
   .forecast-temp {
     grid-column: 3;
     grid-row: 1;
     margin-bottom: 0;
     justify-self: end;
   }
-  
+
   .forecast-wind {
     grid-column: 1 / -1;
     grid-row: 2;

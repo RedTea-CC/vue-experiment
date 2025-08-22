@@ -107,6 +107,8 @@ async function getAIAnalysisManually() {
   try {
     aiAnalysisState.loading = true
     aiAnalysisState.error = null
+    const { data } = await getAIAnalysis(weatherData.value)
+    const { responseContent } = data.choices[0].message.content
 
     const aiResponse = await getAIAnalysis(weatherData.value)
     if (aiResponse.success && aiResponse.data) {
