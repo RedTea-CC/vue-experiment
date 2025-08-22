@@ -11,6 +11,7 @@ import CurrentWeather from '@/components/Weather/CurrentWeather.vue'
 import WeatherForecast from '@/components/Weather/WeatherForecast.vue'
 import AIAnalysis from '@/components/Weather/AIAnalysis.vue'
 import type { WeatherData, ApiState, CityInfo } from '@/types/weather'
+import { parseAIResponse } from '@/utils/aiPrompts'
 
 // 响应式数据
 const weatherData = ref<WeatherData | null>(null)
@@ -48,24 +49,6 @@ async function fetchWeatherData(useCache = true) {
 
     // 获取天气数据
     const data = await getCompleteWeatherData(currentCity.value.adcode)
-
-    // 获取AI分析
-    try {
-      const aiResponse = await getAIAnalysis(data)
-      if (aiResponse.success && aiResponse.data) {
-        data.aiAnalysis = aiResponse.data
-      }
-    } catch (aiError) {
-      console.warn('AI分析获取失败，使用默认建议:', aiError)
-      // 提供默认AI建议
-      data.aiAnalysis = {
-        clothingAdvice: '建议根据当前温度选择合适的服装，注意保暖或防晒。',
-        travelAdvice: '出行前请关注天气变化，合理安排出行时间。',
-        activityRecommendation: '可根据天气情况选择适合的室内外活动。',
-        healthTips: '请注意天气变化对健康的影响，做好相应防护。',
-        summary: '请关注天气变化，合理安排生活和出行。',
-      }
-    }
 
     weatherData.value = data
     apiState.lastUpdate = new Date().toISOString()
@@ -110,12 +93,7 @@ async function getAIAnalysisManually() {
     const { data } = await getAIAnalysis(weatherData.value)
     const { responseContent } = data.choices[0].message.content
 
-    const aiResponse = await getAIAnalysis(weatherData.value)
-    if (aiResponse.success && aiResponse.data) {
-      weatherData.value.aiAnalysis = aiResponse.data
-    } else {
-      throw new Error(aiResponse.error || 'AI分析失败')
-    }
+    weatherData.value.aiAnalysis = parseAIResponse(responseContent)
   } catch (error) {
     console.error('AI分析获取失败:', error)
     aiAnalysisState.error = error instanceof Error ? error.message : 'AI分析失败'

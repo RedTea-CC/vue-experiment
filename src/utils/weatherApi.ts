@@ -24,7 +24,6 @@ const amapApi = axios.create({
 
 const aiApi = axios.create({
   baseURL: AI_BASE_URL,
-  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${AI_API_KEY}`,
@@ -124,7 +123,10 @@ export async function getCompleteWeatherData(city: string): Promise<WeatherData>
 /**
  * 调用AI分析服务
  */
-export async function getAIAnalysis(weatherData: WeatherData): Promise<AIAnalysisResponse> {
+export async function getAIAnalysis({
+  current,
+  forecast,
+}: WeatherData): Promise<AIAnalysisResponse> {
   try {
     const { current, forecast } = weatherData
 

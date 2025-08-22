@@ -1,4 +1,4 @@
-import type { WeatherData } from '@/types/weather'
+import type { AIAnalysisData, WeatherData } from '@/types/weather'
 
 /**
  * 生成AI分析的优化提示词
@@ -13,8 +13,8 @@ export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string 
       weather: current.weather,
       temperature: current.temperature,
       humidity: current.humidity,
-      wind: `${current.windDirection}风 ${current.windPower}级`,
-      updateTime: current.reportTime,
+      windpower: `${current.winddirection}风 ${current.windpower}级`,
+      reporttime: current.reporttime,
     },
     forecast: forecast.slice(0, 3).map((day) => ({
       date: day.date,
@@ -34,8 +34,8 @@ export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string 
 - 天气状况：${weatherInfo.current.weather}
 - 温度：${weatherInfo.current.temperature}°C
 - 湿度：${weatherInfo.current.humidity}%
-- 风力：${weatherInfo.current.wind}
-- 更新时间：${weatherInfo.current.updateTime}
+- 风力：${weatherInfo.current.windpower}
+- 更新时间：${weatherInfo.current.reporttime}
 
 **未来3天预报：**
 ${weatherInfo.forecast
@@ -73,29 +73,29 @@ ${weatherInfo.forecast
 /**
  * 解析AI响应文本，提取JSON数据
  */
-export function parseAIResponse(responseText: string): any {
+export function parseAIResponse(responseText: string): AIAnalysisData {
   try {
     // 尝试直接解析JSON
     return JSON.parse(responseText)
   } catch {
     // 如果直接解析失败，尝试提取JSON部分
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      try {
-        return JSON.parse(jsonMatch[0])
-      } catch {
-        // 如果仍然失败，返回默认结构
-        return parseTextResponse(responseText)
-      }
+    const start = responseText.indexOf('{')
+    const end = responseText.lastIndexOf('}')
+    try {
+      const jsonStr = responseText.slice(start, end + 1)
+      return JSON.parse(jsonStr)
+    } catch (err) {
+      console.error('解析 JSON 出错:', err)
+      // 如果仍然失败，返回默认结构
+      return parseTextResponse(responseText)
     }
-    return parseTextResponse(responseText)
   }
 }
 
 /**
  * 从纯文本响应中提取建议内容
  */
-function parseTextResponse(text: string): any {
+function parseTextResponse(text: string): AIAnalysisData {
   const defaultResponse = {
     clothingAdvice: '建议根据当前温度选择合适的服装，注意保暖或防晒。',
     travelAdvice: '出行前请关注天气变化，合理安排出行时间。',
