@@ -38,7 +38,7 @@ export async function getCurrentWeather(city: string): Promise<AmapWeatherRespon
     const response = await amapApi.get('/weatherInfo', {
       params: {
         key: AMAP_KEY,
-        city: city,
+        city,
         extensions: 'base',
       },
     })
@@ -57,7 +57,7 @@ export async function getWeatherForecast(city: string): Promise<AmapWeatherRespo
     const response = await amapApi.get('/weatherInfo', {
       params: {
         key: AMAP_KEY,
-        city: city,
+        city,
         extensions: 'all',
       },
     })
@@ -128,42 +128,21 @@ export async function getAIAnalysis({
   forecast,
 }: WeatherData): Promise<AIAnalysisResponse> {
   try {
-    const prompt = generateWeatherAnalysisPrompt({
-      current: {
-        province: '',
-        city: current.city,
-        adcode: '',
-        weather: current.weather,
-        temperature: current.temperature.toString(),
-        winddirection: current.winddirection,
-        windpower: current.windpower,
-        humidity: current.humidity.toString(),
-        reporttime: current.reporttime,
-        temperature_float: current.temperature.toString(),
-        humidity_float: current.humidity.toString(),
-      },
-      forecast: forecast.map((item) => ({
-        date: item.date,
-        week: item.week,
-        dayweather: item.dayweather,
-        nightweather: item.nightweather,
-        daytemp: item.daytemp.toString(),
-        nighttemp: item.nighttemp.toString(),
-        daywind: item.daywind,
-        nightwind: item.nightwind,
-        daypower: '',
-        nightpower: '',
-        daytemp_float: item.daytemp.toString(),
-        nighttemp_float: item.nighttemp.toString(),
-      })),
+    const prompts = generateWeatherAnalysisPrompt({
+      current,
+      forecast,
     })
 
     const requestData = {
       model: import.meta.env.VITE_AI_MODEL,
       messages: [
         {
+          role: 'system',
+          content: prompts.system,
+        },
+        {
           role: 'user',
-          content: prompt,
+          content: prompts.user,
         },
       ],
     }

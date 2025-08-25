@@ -3,7 +3,10 @@ import type { AIAnalysisData, WeatherData } from '@/types/weather'
 /**
  * 生成AI分析的优化提示词
  */
-export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string {
+export function generateWeatherAnalysisPrompt(weatherData: WeatherData): {
+  system: string
+  user: string
+} {
   const { current, forecast } = weatherData
 
   // 构建结构化的天气信息
@@ -26,21 +29,8 @@ export function generateWeatherAnalysisPrompt(weatherData: WeatherData): string 
     })),
   }
 
-  const prompt = `
-你是一位专业的天气分析师和生活顾问，请基于以下天气数据为用户提供个性化的生活建议。
-
-## 天气数据
-**当前天气（${weatherInfo.current.city}）：**
-- 天气状况：${weatherInfo.current.weather}
-- 温度：${weatherInfo.current.temperature}°C
-- 湿度：${weatherInfo.current.humidity}%
-- 风力：${weatherInfo.current.windpower}
-- 更新时间：${weatherInfo.current.reporttime}
-
-**未来3天预报：**
-${weatherInfo.forecast
-  .map((day) => `- ${day.date}（${day.week}）：${day.dayweather}转${day.nightweather}，${day.wind}`)
-  .join('\n')}
+  const systemPrompt = `
+你是一位专业的天气分析师和生活顾问，请基于用户提供的天气数据为用户提供个性化的生活建议。
 
 ## 分析要求
 请从以下4个维度提供专业建议，每个维度控制在50-80字：
@@ -65,30 +55,26 @@ ${weatherInfo.forecast
 - 语言要亲切自然，避免过于专业的术语
 - 考虑中国用户的生活习惯和文化背景
 - 如遇极端天气，要特别强调安全提醒
-`
+`.trim()
 
-  return prompt.trim()
-}
+  const userPrompt = `
+## 天气数据
+**当前天气（${weatherInfo.current.city}）：**
+- 天气状况：${weatherInfo.current.weather}
+- 温度：${weatherInfo.current.temperature}°C
+- 湿度：${weatherInfo.current.humidity}%
+- 风力：${weatherInfo.current.windpower}
+- 更新时间：${weatherInfo.current.reporttime}
 
-/**
- * 解析AI响应文本，提取JSON数据
- */
-export function parseAIResponse(responseText: string): AIAnalysisData {
-  try {
-    // 尝试直接解析JSON
-    return JSON.parse(responseText)
-  } catch {
-    // 如果直接解析失败，尝试提取JSON部分
-    const start = responseText.indexOf('{')
-    const end = responseText.lastIndexOf('}')
-    try {
-      const jsonStr = responseText.slice(start, end + 1)
-      return JSON.parse(jsonStr)
-    } catch (err) {
-      console.error('解析 JSON 出错:', err)
-      // 如果仍然失败，返回默认结构
-      return parseTextResponse(responseText)
-    }
+**未来3天预报：**
+${weatherInfo.forecast
+  .map((day) => `- ${day.date}（${day.week}）：${day.dayweather}转${day.nightweather}，${day.wind}`)
+  .join('\n')}
+`.trim()
+
+  return {
+    system: systemPrompt,
+    user: userPrompt,
   }
 }
 
@@ -121,6 +107,28 @@ function parseTextResponse(text: string): AIAnalysisData {
 }
 
 /**
+ * 解析AI响应文本，提取JSON数据
+ */
+export function parseAIResponse(responseText: string): AIAnalysisData {
+  try {
+    // 尝试直接解析JSON
+    return JSON.parse(responseText)
+  } catch {
+    // 如果直接解析失败，尝试提取JSON部分
+    const start = responseText.indexOf('{')
+    const end = responseText.lastIndexOf('}')
+    try {
+      const jsonStr = responseText.slice(start, end + 1)
+      return JSON.parse(jsonStr)
+    } catch (err) {
+      console.error('解析 JSON 出错:', err)
+      // 如果仍然失败，返回默认结构
+      return parseTextResponse(responseText)
+    }
+  }
+}
+
+/**
  * 生成天气图标映射
  */
 export function getWeatherIcon(weather: string): string {
@@ -141,14 +149,9 @@ export function getWeatherIcon(weather: string): string {
     沙尘暴: '🌪️',
   }
 
-  // 模糊匹配
-  for (const [key, icon] of Object.entries(iconMap)) {
-    if (weather.includes(key)) {
-      return icon
-    }
-  }
-
-  return '🌤️' // 默认图标
+  // 使用数组的find方法替代for...of循环
+  const foundKey = Object.keys(iconMap).find((key) => weather.includes(key))
+  return foundKey ? iconMap[foundKey] : '🌤️' // 默认图标
 }
 
 /**
@@ -169,9 +172,9 @@ export function formatDate(dateStr: string): string {
 
   if (date.toDateString() === today.toDateString()) {
     return '今天'
-  } else if (date.toDateString() === tomorrow.toDateString()) {
-    return '明天'
-  } else {
-    return `${date.getMonth() + 1}/${date.getDate()}`
   }
+  if (date.toDateString() === tomorrow.toDateString()) {
+    return '明天'
+  }
+  return `${date.getMonth() + 1}/${date.getDate()}`
 }
